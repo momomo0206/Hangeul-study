@@ -3,8 +3,9 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import { connectDB } from './db/connectDB.js';
-import { generalLimiter } from './middleware/rateLimiter.js';
+import { authLimiter, generalLimiter } from './middleware/rateLimiter.js';
 import authRoutes from './routes/auth.route.js';
+import wordRoutes from './routes/word.route.js';
 
 dotenv.config({ quiet: true });
 
@@ -21,7 +22,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/words', wordRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
