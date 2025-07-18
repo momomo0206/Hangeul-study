@@ -39,8 +39,3 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: 'Login error', error: error.message });
   }
 };
-
-export const getProfile = async (req, res) => {
-  const user = await User.findById(req.user.id).select('-password');
-  res.status(200).json(user);
-}

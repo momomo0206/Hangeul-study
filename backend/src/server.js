@@ -6,6 +6,7 @@ import { connectDB } from './db/connectDB.js';
 import { authLimiter, generalLimiter } from './middleware/rateLimiter.js';
 import authRoutes from './routes/auth.route.js';
 import wordRoutes from './routes/word.route.js';
+import userRoutes from './routes/user.route.js';
 
 dotenv.config({ quiet: true });
 
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/words', wordRoutes);
 
 connectDB().then(() => {
