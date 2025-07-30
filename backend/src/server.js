@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.js';
+import wordRoutes from './routes/word.js';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/words', wordRoutes);
 
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
