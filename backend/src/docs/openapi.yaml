@@ -1,0 +1,397 @@
+{
+  "openapi": "3.0.0",
+  "info":
+    {
+      "title": "Hangeul Study API",
+      "version": "1.0.0",
+      "description": "Hangeul Study API documentation"
+    },
+  "servers": [ { "url": "http://localhost:5000", "description": "Development server" } ],
+  "components":
+    {
+      "securitySchemes":
+        {
+          "cookieAuth":
+            {
+              "type": "apiKey",
+              "in": "cookie",
+              "name": "token",
+              "description": "JWTトークン（httpOnly Cookieで送信）"
+            }
+        },
+      "schemas":
+        {
+          "User":
+            {
+              "type": "object",
+              "required": [ "username", "email" ],
+              "properties":
+                {
+                  "_id": { "type": "string", "description": "ユーザーID" },
+                  "username": { "type": "string", "description": "ユーザー名" },
+                  "email": { "type": "string", "description": "メールアドレス" },
+                  "profileImage": { "type": "string", "nullable": true, "description": "プロフィール画像URL" },
+                  "createdAt": { "type": "string", "format": "date-time" },
+                  "updatedAt": { "type": "string", "format": "date-time" }
+                }
+            },
+          "Word":
+            {
+              "type": "object",
+              "required": [ "japanese", "korean" ],
+              "properties":
+                {
+                  "_id": { "type": "string", "description": "単語ID" },
+                  "japanese": { "type": "string", "description": "日本語" },
+                  "korean": { "type": "string", "description": "韓国語" },
+                  "reading": { "type": "string", "description": "カタカナ読み" },
+                  "createdAt": { "type": "string", "format": "date-time", "description": "作成日時" },
+                  "updatedAt": { "type": "string", "format": "date-time", "description": "更新日時" }
+                }
+            }
+        }
+    },
+  "paths":
+    {
+      "/api/auth/register":
+        {
+          "post":
+            {
+              "summary": "ユーザー登録",
+              "tags": [ "Auth" ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "required": [ "username", "email", "password" ],
+                              "properties":
+                                {
+                                  "username": { "type": "string", "example": "taro" },
+                                  "email": { "type": "string", "example": "taro@example.com" },
+                                  "password": { "type": "string", "example": "pass1234" }
+                                }
+                            }
+                        }
+                    }
+                },
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "登録成功",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "user": { "$ref": "#/components/schemas/User" },
+                                      "token": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                  "400": { "description": "バリデーションエラー" }
+                }
+            }
+        },
+      "/api/auth/login":
+        {
+          "post":
+            {
+              "summary": "ログイン",
+              "tags": [ "Auth" ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "required": [ "email", "password" ],
+                              "properties":
+                                {
+                                  "email": { "type": "string", "example": "taro@example.com" },
+                                  "password": { "type": "string", "example": "pass1234" }
+                                }
+                            }
+                        }
+                    }
+                },
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "ログイン成功",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "user": { "$ref": "#/components/schemas/User" },
+                                      "token": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                  "400": { "description": "バリデーションエラー" },
+                  "401": { "description": "認証失敗" }
+                }
+            }
+        },
+      "/api/auth/logout":
+        {
+          "post":
+            {
+              "summary": "ログアウト",
+              "tags": [ "Auth" ],
+              "security": [ { "cookieAuth": [] } ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "ログアウト成功",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties": { "message": { "type": "string", "example": "ログアウトしました" } }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+      "/api/auth/profile":
+        {
+          "get":
+            {
+              "summary": "プロフィール取得",
+              "tags": [ "Auth" ],
+              "security": [ { "cookieAuth": [] } ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "プロフィール情報",
+                      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
+                    },
+                  "401": { "description": "未認証" }
+                }
+            },
+          "patch":
+            {
+              "summary": "プロフィール編集",
+              "tags": [ "Auth" ],
+              "security": [ { "cookieAuth": [] } ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "properties":
+                                {
+                                  "username": { "type": "string", "example": "新しいユーザー名" },
+                                  "profileImage": { "type": "string", "example": "https://cloudinary.com/image.jpg" }
+                                }
+                            }
+                        }
+                    }
+                },
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "更新後のプロフィール情報",
+                      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
+                    },
+                  "401": { "description": "未認証" },
+                  "404": { "description": "ユーザーが見つからない" }
+                }
+            }
+        },
+      "/api/translate":
+        {
+          "post":
+            {
+              "summary": "日本語→韓国語変換",
+              "tags": [ "Translate" ],
+              "security": [ { "cookieAuth": [] } ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "properties": { "text": { "type": "string", "example": "こんにちは" } }
+                            }
+                        }
+                    }
+                },
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "翻訳結果",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "japanese": { "type": "string", "example": "こんにちは" },
+                                      "korean": { "type": "string", "example": "안녕하세요" },
+                                      "reading": { "type": "string", "example": "アンニョンハセヨ" },
+                                      "audioUrl": { "type": "string", "example": "https://example.com/tts.mp3" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                  "400": { "description": "バリデーションエラー" },
+                  "401": { "description": "未認証" }
+                }
+            }
+        },
+      "/api/words":
+        {
+          "get":
+            {
+              "summary": "ユーザーの単語一覧取得",
+              "tags": [ "Words" ],
+              "security": [ { "cookieAuth": [] } ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "単語リスト",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Word" } }
+                            }
+                        }
+                    },
+                  "401": { "description": "未認証" }
+                }
+            },
+          "post":
+            {
+              "summary": "単語追加",
+              "tags": [ "Words" ],
+              "security": [ { "cookieAuth": [] } ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "required": [ "japanese", "korean" ],
+                              "properties":
+                                {
+                                  "japanese": { "type": "string", "example": "こんにちは" },
+                                  "korean": { "type": "string", "example": "안녕하세요" },
+                                  "reading": { "type": "string", "example": "アンニョンハセヨ" }
+                                }
+                            }
+                        }
+                    }
+                },
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "登録成功",
+                      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Word" } } }
+                    },
+                  "400": { "description": "バリデーションエラー" },
+                  "401": { "description": "未認証" }
+                }
+            }
+        },
+      "/api/words/{id}":
+        {
+          "delete":
+            {
+              "summary": "単語削除",
+              "tags": [ "Words" ],
+              "security": [ { "cookieAuth": [] } ],
+              "parameters":
+                [
+                  {
+                      "name": "id",
+                      "in": "path",
+                      "required": true,
+                      "description": "削除対象単語のID",
+                      "schema": { "type": "string" }
+                    }
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "削除完了",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties": { "message": { "type": "string", "example": "削除しました" } }
+                                }
+                            }
+                        }
+                    },
+                  "401": { "description": "未認証" },
+                  "404": { "description": "単語が見つからない" }
+                }
+            }
+        }
+    },
+  "tags":
+    [
+      { "name": "Auth", "description": "認証関連API" },
+      { "name": "Translate", "description": "翻訳API" },
+      { "name": "Words", "description": "単語帳API" }
+    ]
+}

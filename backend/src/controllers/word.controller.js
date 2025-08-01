@@ -12,14 +12,15 @@ export const getWords = async (req, res) => {
 
 export const addWord = async (req, res) => {
   try {
-    const { japanese, korean } = req.body;
+    const { japanese, korean, reading } = req.body;
     const exists = await Word.findOne({ user: req.user._id, japanese, korean });
     if (exists) return res.status(400).json({ message: 'Word already exists' });
     
     const word = new Word({
       user: req.user._id,
       japanese,
-      korean
+      korean,
+      reading
     });
     await word.save();
     res.status(201).json(word);
