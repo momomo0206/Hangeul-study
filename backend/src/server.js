@@ -1,5 +1,7 @@
-import cors from 'cors';
 import dotenv from 'dotenv';
+dotenv.config();
+
+import cors from 'cors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
@@ -11,7 +13,6 @@ import translateRoutes from './routes/translate.js';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './docs/swagger.js';
 
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
